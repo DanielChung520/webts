@@ -1,0 +1,58 @@
+openapi: 3.0.0
+info:
+  title: MyStock API
+  description: MyStock 應用程序的 API 文檔
+  version: 1.0.0
+servers:
+  - url: https://enterprise.ai-daniel.org/api
+    description: 生產環境
+  - url: http://localhost:3000/api
+    description: 本地開發環境
+
+paths:
+  /auth/login:
+    post:
+      summary: 用戶登錄
+      description: 驗證用戶憑據並返回訪問令牌
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "user@example.com"
+                password:
+                  type: string
+                  example: "password123"
+      responses:
+        '200':
+          description: 登錄成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      username:
+                        type: string
+        '401':
+          description: 認證失敗
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: [] 
