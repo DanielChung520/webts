@@ -1,0 +1,50 @@
+.hover-table .ant-table-row {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.hover-table .ant-table-row:hover {
+  transform: scale(1.02);
+  background-color: #f0f7ff !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 1;
+  position: relative;
+}
+
+/* 表格標題欄樣式 */
+.hover-table .ant-table-thead > tr > th {
+  background-color: #001529 !important;
+  color: white !important;
+  font-weight: 500;
+}
+
+/* 確保排序按鈕也是白色 */
+.hover-table .ant-table-thead > tr > th .ant-table-column-sorter {
+  color: white;
+}
+
+/* 確保過濾圖標也是白色 */
+.hover-table .ant-table-thead > tr > th .anticon {
+  color: white;
+}
+
+/* hover 時保持白色 */
+.hover-table .ant-table-thead > tr > th:hover {
+  background-color: #002140 !important;
+  color: white !important;
+}
+
+.hover-table .ant-table-tbody > tr:hover > td {
+  background-color: #e6f7ff !important;  /* 淡藍色 */
+  cursor: pointer;
+}
+
+/* 確保選中狀態時的背景色也是淡藍色 */
+.hover-table .ant-table-tbody > tr.ant-table-row-selected > td {
+  background-color: #e6f7ff !important;
+}
+
+/* 添加平滑過渡效果 */
+.hover-table .ant-table-tbody > tr > td {
+  transition: background-color 0.3s ease;
+} 

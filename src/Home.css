@@ -1,0 +1,123 @@
+.home-container {
+  position: relative;
+  width: 100%;
+  height: 100%;  /* 改為 100% 而不是 100vh */
+  background-image: url('./assets/sea2.png');
+  background-size: cover;
+  background-position: center;
+  pointer-events: auto; /* 允许子元素接收事件 */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;  /* 防止整個容器滾動 */
+  padding: 20px 50px 50px 50px; /* 調整上下左右的內邊距 */
+}
+
+.home-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-backdrop-filter: none; /* Safari 兼容 */
+  backdrop-filter: none; /* 标准语法 */
+  pointer-events: none; /* 完全禁用伪元素的事件 */
+}
+
+.header {
+    position: relative;
+    z-index: 1; /* 确保 Header 在模糊层之上 */
+    background: transparent; /* 确保 Header 背景透明 */
+  }
+
+/* Grid 模式樣式 */
+.project-card {
+  height: 180px;
+  width: 300px;
+  transition: all 0.3s ease;
+  transform: scale(1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  margin: 15px 0; /* 添加上下邊距，為hover效果預留空間 */
+}
+
+.project-card:hover {
+  transform: scale(1.1);  /* 放大到 1.1 倍 */
+  box-shadow: 0 4px 26px rgba(0, 0, 0, 0.3);
+  z-index: 1; /* 確保hover時卡片在最上層 */
+}
+
+.list-view-item {
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.list-view-item:hover {
+  transform: scale(1.01);  /* 放大到 1.01 倍 */
+  background-color: #f8f8f8;
+}
+
+/* 列表模式樣式 */
+.project-card.topic-card-list {
+  height: 100px;
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+/* 列表模式下的內容布局 */
+.topic-card-list .ant-card-body {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+}
+
+/* 調整列表模式下的標題和描述 */
+.topic-card-list .ant-card-body > div {
+  flex: 1;
+  overflow: hidden; /* 避免內容溢出 */
+}
+
+.topic-card-list .ant-card-body .description {
+  white-space: nowrap; /* 單行顯示 */
+  text-overflow: ellipsis; /* 超出顯示省略號 */
+  overflow: hidden;
+  max-width: 100%; /* 限制描述寬度 */
+}
+
+/* 列表模式下強制按鈕靠右 */
+.topic-card-list .ant-card-body > div:last-child {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  display: flex;
+  gap: 8px;
+}
+
+/* 使用更強的選擇器組合 */
+.home-container .project-card.topic-card-list,
+.home-container .project-card.topic-card-list .ant-card,
+.home-container .project-card.topic-card-list .ant-card-body {
+  height: 100px !important;
+  min-height: 100px !important;
+  max-height: 100px !important;
+}
+
+/* 增加選擇器特異性 */
+.project-card.topic-card-list {
+  height: 100px !important;
+}
+
+/* 確保 Card 內容區域也跟著調整 */
+.project-card.topic-card-list .ant-card-body {
+  height: 100px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 16px !important;
+}
+
+/* 修改列表模式的 hover 效果 */
+.project-card.topic-card-list:hover {
+  transform: scale(1.01);  /* 改為更小的放大效果 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  background-color: #f8f8f8;
+  border-radius: 8px;
+}

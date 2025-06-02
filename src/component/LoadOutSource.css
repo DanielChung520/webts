@@ -1,0 +1,44 @@
+.load-out-source-modal .ant-modal-content {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.load-out-source-modal .ant-modal-header {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 24px;
+}
+
+.load-out-source-modal .ant-modal-body {
+  padding: 24px;
+}
+
+.upload-area {
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.upload-area:hover {
+  border-color: #1890ff !important;
+  background-color: #f0f7ff !important;
+}
+
+.ant-tabs-tab {
+  padding: 12px 16px !important;
+}
+
+.ant-tabs-tab .anticon {
+  margin-right: 8px;
+}
+
+/* 按鈕樣式 */
+.ant-btn {
+  height: 40px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ant-btn .anticon {
+  font-size: 16px;
+} 

@@ -1,0 +1,230 @@
+.ai-main-container {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 64px); /* 减去顶部导航栏的高度 64px */
+  background-image: url('../assets/sea2.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.header-bar {
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: #001529;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  height: 44px;
+  color: #ffffff;
+}
+
+.header-bar .title {
+  font-size: 16px;
+  font-weight: 500;
+  flex: 1;
+}
+
+/* 統一的按鈕基礎樣式 */
+.header-bar .icon-button,
+.chat-header-btn {
+  width: 32px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  border: none;
+  position: relative;
+  transition: all 0.3s;
+  border-radius: 20px;
+}
+
+/* 統一的按鈕懸浮效果 */
+.header-bar .icon-button:hover,
+.chat-header-btn:hover {
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.361);
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+  color: white !important;
+  background: transparent;
+}
+
+/* 統一的圖標樣式 */
+.header-bar .icon-button .anticon,
+.chat-header-btn .anticon {
+  font-size: 16px;
+  color: white;
+  transition: all 0.3s;
+}
+
+/* 統一的圖標懸浮效果 */
+.header-bar .icon-button:hover .anticon,
+.chat-header-btn:hover .anticon {
+  color: white !important;
+}
+
+/* 統一的按鈕點擊效果 */
+.header-bar .icon-button:active,
+.chat-header-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.header-bar .icon-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+  pointer-events: none;
+}
+
+.header-bar .icon-button:hover::before {
+  width: 120%;
+  height: 120%;
+}
+
+.ai-main-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+
+.toggle-button {
+  height: 32px;
+  color: #ffffff;
+  transition: transform 0.3s ease;
+}
+
+.toggle-button.collapsed .anticon {
+  transform: rotate(180deg);
+}
+
+.toggle-button.expanded .anticon {
+  transform: rotate(0deg);
+}
+
+/* 自定義 Sider 收合按鈕樣式 */
+.custom-sider .ant-layout-sider-trigger {
+  background-color: #1890ff;
+  height: 32px;
+  line-height: 32px;
+  width: 32px !important;
+  position: absolute;
+  top: 8px;
+  right: -32px;
+  border-radius: 0 4px 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-sider .ant-layout-sider-trigger .anticon {
+  color: #fff;
+  font-size: 16px;
+  transition: transform 0.3s;
+}
+
+.custom-sider.ant-layout-sider-collapsed .ant-layout-sider-trigger .anticon {
+  transform: rotate(180deg);
+}
+
+/* 輸入區域樣式 */
+.chat-input-container {
+  background: rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 120px;
+  height: auto;
+}
+
+.chat-input-wrapper {
+  position: relative;
+  height: 100%;
+  min-height: 80px;
+}
+
+.chat-input {
+  height: 100% !important;
+  resize: none !important;
+  border-radius: 6px;
+  padding-right: 40px;
+  padding-top: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  border: 1px solid #d9d9d9;
+  min-height: 100px !important;
+  max-height: 50vh !important;
+  transition: height 0.2s ease;
+}
+
+.chat-input:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.resize-handle {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: ns-resize;
+  color: #8c8c8c;
+  transition: all 0.3s;
+  border-radius: 4px;
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.resize-handle:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  color: #1890ff;
+}
+
+.resize-handle:active {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.chat-send-button {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 0;
+  height: 32px;
+  width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  transition: all 0.3s;
+}
+
+.chat-send-button:hover {
+  transform: scale(1.1);
+}
+
+.chat-send-button:active {
+  transform: scale(0.95);
+} 
