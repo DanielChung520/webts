@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Button, Space, Dropdown, Input, List, Typography, Checkbox, Tooltip, Modal, Form } from 'antd';
+import { Layout, Button, Space, Dropdown, Input, List, Typography, Checkbox, Tooltip, Modal, Form, Switch, message } from 'antd';
 import { MenuFoldOutlined, MenuUnfoldOutlined, PlusOutlined, UserOutlined, MenuOutlined, HistoryOutlined, DownOutlined, SendOutlined, FileTextOutlined, VerticalAlignTopOutlined } from '@ant-design/icons';
 import SystemPrompt from './SystemPrompt';
 import LoadOutSource from '../component/LoadOutSource';
 import './AiMain.css';
 import { useLocation } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import 'github-markdown-css/github-markdown.css';
+import { MainContainer, ChatContainer, MessageList, Message, MessageInput } from '@chatscope/chat-ui-kit-react';
+import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 
 const { Sider, Content } = Layout;
 
@@ -30,6 +36,25 @@ interface CollectionsResponse {
   total_collections: number;
 }
 
+interface Message {
+  role: string;
+  content: string;
+  timestamp: string;
+}
+
+interface ChatResponse {
+  role: string;
+  response: string;
+  model: string;
+  usage: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+  deep_think: boolean;
+  web_search: boolean;
+}
+
 const AiMain: React.FC = () => {
   const { state } = useLocation() as { state: LocationState };
   const { roleName: initialRoleName, topicId: initialTopicId } = state || {};
@@ -44,6 +69,11 @@ const AiMain: React.FC = () => {
   const [collections, setCollections] = useState<CollectionsResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isThinking, setIsThinking] = useState(false);
+  const [isWebSearch, setIsWebSearch] = useState(false);
+  const [conversationId, setConversationId] = useState<string>('');
 
   // 初始化時解析路由狀態
   useEffect(() => {
@@ -176,6 +206,155 @@ const AiMain: React.FC = () => {
   `;
   document.head.appendChild(styleSheet);
 
+  // 創建新的對話
+  const createNewConversation = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:5505/api/ai/conversation/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: 'default_user',
+          role_name: currentRoleName,
+          title: `新對話 ${new Date().toLocaleString()}`
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setConversationId(data.conversation_id);
+      return data.conversation_id;
+    } catch (error) {
+      console.error('創建對話失敗:', error);
+      message.error('創建對話失敗，請稍後重試');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 發送消息
+  const sendMessage = async () => {
+    if (!inputMessage.trim() || loading) return;
+    
+    try {
+      setLoading(true);
+      
+      // 如果沒有對話ID，先創建一個新對話
+      let currentConversationId = conversationId;
+      if (!currentConversationId) {
+        currentConversationId = await createNewConversation();
+        if (!currentConversationId) {
+          return; // 如果創建失敗，直接返回
+        }
+      }
+      
+      // 添加用戶消息到列表
+      const userMessage: Message = {
+        role: 'user',
+        content: inputMessage,
+        timestamp: new Date().toLocaleString()
+      };
+      setMessages(prev => [...prev, userMessage]);
+      
+      // 發送請求到後端
+      const response = await fetch(`http://localhost:5505/api/ai/conversation/${currentConversationId}/message`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: 'default_user',
+          content: inputMessage,
+          user_role: currentRoleName || 'default',
+          deep_think: isThinking,
+          web_search: isWebSearch
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('收到回應:', data); // 添加日誌
+      
+      // 添加AI回覆到消息列表
+      const aiMessage: Message = {
+        role: data.role || 'assistant',
+        content: data.content,
+        timestamp: new Date().toLocaleString()
+      };
+      setMessages(prev => [...prev, aiMessage]);
+      
+      // 清空輸入框
+      setInputMessage('');
+      
+    } catch (error) {
+      console.error('發送消息失敗:', error);
+      message.error('發送消息失敗，請稍後重試');
+      
+      // 移除剛才添加的用戶消息
+      setMessages(prev => prev.slice(0, -1));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 渲染消息列表
+  const renderMessages = () => {
+    return messages.map((msg, index) => (
+      <div
+        key={index}
+        className={`message ${msg.role === 'user' ? 'user-message' : 'ai-message'}`}
+      >
+        <div className="message-header">
+          <span className="message-role">{msg.role === 'user' ? '用戶' : 'AI'}</span>
+          <span className="message-time">{msg.timestamp}</span>
+        </div>
+        <div className="message-content markdown-body">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
+            components={{
+              code: ({node, inline, className, children, ...props}: any) => {
+                const match = /language-(\w+)/.exec(className || '');
+                return !inline ? (
+                  <pre className={className}>
+                    <code className={match ? `hljs language-${match[1]}` : ''} {...props}>
+                      {children}
+                    </code>
+                  </pre>
+                ) : (
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                );
+              }
+            }}
+          >
+            {msg.content}
+          </ReactMarkdown>
+        </div>
+      </div>
+    ));
+  };
+
+  // 創建新聊天室
+  const handleNewChat = async () => {
+    setMessages([]); // 清空消息列表
+    setConversationId(''); // 清空當前對話ID
+    setInputMessage(''); // 清空輸入框
+    setIsThinking(false); // 重置思考模式
+    setIsWebSearch(false); // 重置網絡搜索
+  };
+
   return (
     <div className="ai-main-container" style={{ height: '100vh' }}>
       <Layout style={{ 
@@ -272,17 +451,18 @@ const AiMain: React.FC = () => {
 
                 {/* 下方可收合區域 */}
                 <div style={{
-                  background: 'rgba(151, 148, 148, 0.36)', // 調整透明度為0.9
+                  background: 'rgba(151, 148, 148, 0.36)',
                   borderRadius: '8px',
                   position: 'absolute',
-                  bottom: 0,
+                  bottom: '0',
                   left: 0,
                   right: 0,
                   zIndex: 1,
                   transition: 'all 0.3s ease-in-out',
-                  height: isInternalDataCollapsed ? '50px' : '50%',
                   display: 'flex',
-                  flexDirection: 'column'
+                  flexDirection: 'column',
+                  maxHeight: isInternalDataCollapsed ? '100px' : '80%',
+                  minHeight: '50px'  // 確保至少保持標題欄高度
                 }}>
                   {/* 標題欄 */}
                   <div 
@@ -291,14 +471,16 @@ const AiMain: React.FC = () => {
                       justifyContent: 'space-between',
                       alignItems: 'center',
                       padding: '0 16px',
-                      borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+                      borderBottom: isInternalDataCollapsed ? 'none' : '1px solid rgba(0, 0, 0, 0.1)',
                       cursor: 'pointer',
                       height: '50px',
                       boxSizing: 'border-box',
                       flexShrink: 0,
                       backgroundColor: '#001529',
                       borderTopLeftRadius: '8px',
-                      borderTopRightRadius: '8px'
+                      borderTopRightRadius: '8px',
+                      borderBottomLeftRadius: isInternalDataCollapsed ? '8px' : '0',
+                      borderBottomRightRadius: isInternalDataCollapsed ? '8px' : '0'
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -328,9 +510,12 @@ const AiMain: React.FC = () => {
                     overflow: 'hidden',
                     opacity: isInternalDataCollapsed ? 0 : 1,
                     visibility: isInternalDataCollapsed ? 'hidden' : 'visible',
-                    transition: 'opacity 0.3s ease-in-out',
+                    transition: 'all 0.3s ease-in-out',
                     padding: '4px',
-                    height: isInternalDataCollapsed ? 0 : 'calc(100% - 50px)'
+                    height: isInternalDataCollapsed ? 0 : 'calc(100% - 50px)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    borderBottomLeftRadius: '8px',
+                    borderBottomRightRadius: '8px'
                   }}>
                     <div style={{ 
                       height: '100%', 
@@ -402,64 +587,61 @@ const AiMain: React.FC = () => {
               flexDirection: 'column',
               gap: '12px'
             }}>
-              {/* 這裡後續會添加消息列表 */}
+              {renderMessages()}
             </div>
-          </div>
 
-          {/* 輸入區域 */}
-          <div className="chat-input-container">
-            <div className="chat-input-wrapper">
-              <div 
-                className="resize-handle"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  const wrapper = e.currentTarget.parentElement;
-                  const container = wrapper?.parentElement;
-                  const textarea = wrapper?.querySelector('.chat-input') as HTMLTextAreaElement;
-                  if (!textarea || !container) return;
-
-                  const startY = e.clientY;
-                  const startHeight = textarea.offsetHeight;
-
-                  const handleMouseMove = (moveEvent: MouseEvent) => {
-                    moveEvent.preventDefault();
-                    const deltaY = startY - moveEvent.clientY;
-                    const newHeight = Math.min(
-                      Math.max(startHeight + deltaY, 80),
-                      window.innerHeight * 0.5
-                    );
-                    
-                    textarea.style.height = `${newHeight}px`;
-                    wrapper.style.height = `${newHeight}px`;
-                    container.style.height = `${newHeight + 16}px`; // 加上padding
-                  };
-
-                  const handleMouseUp = () => {
-                    document.removeEventListener('mousemove', handleMouseMove);
-                    document.removeEventListener('mouseup', handleMouseUp);
-                  };
-
-                  document.addEventListener('mousemove', handleMouseMove);
-                  document.addEventListener('mouseup', handleMouseUp);
-                }}
-              >
-                <VerticalAlignTopOutlined />
+            {/* 控制區域 */}
+            <div className="chat-control-bar">
+              <div className="left-controls">
+                <Space size="middle">
+                  <div className="control-item">
+                    <span>Thinking Mode</span>
+                    <Switch 
+                      size="small"
+                      checked={isThinking}
+                      onChange={setIsThinking}
+                    />
+                  </div>
+                  <div className="control-item">
+                    <span>Internet</span>
+                    <Switch 
+                      size="small"
+                      checked={isWebSearch}
+                      onChange={setIsWebSearch}
+                    />
+                  </div>
+                </Space>
               </div>
-              <Input.TextArea 
-                placeholder="請輸入訊息..."
-                className="chat-input"
-                autoSize={false}
-                style={{ height: '80px' }}
-              />
-              <Button 
-                type="link"
-                icon={<SendOutlined style={{ 
-                  transform: 'rotate(-90deg)', 
-                  fontSize: '20px',
-                  color: '#1890ff'
-                }} />}
-                className="chat-send-button"
-              />
+              <div className="right-controls">
+                <Button 
+                  type="link"
+                  icon={<SendOutlined style={{ 
+                    fontSize: '20px',
+                    color: '#1890ff'
+                  }} />}
+                  className="chat-send-button"
+                  onClick={sendMessage}
+                  loading={loading}
+                />
+              </div>
+            </div>
+
+            {/* 輸入區域 */}
+            <div className="chat-input-container">
+              <div className="chat-input-wrapper">
+                <MessageInput
+                  placeholder="請輸入訊息..."
+                  value={inputMessage}
+                  onChange={(val) => setInputMessage(val)}
+                  onSend={sendMessage}
+                  attachButton={false}
+                  style={{
+                    background: 'white',
+                    borderRadius: '8px',
+                    border: '1px solid #d9d9d9'
+                  }}
+                />
+              </div>
             </div>
           </div>
         </Content>

@@ -8,7 +8,7 @@
 }
 
 .header-bar {
-  padding: 8px 16px;
+  padding: 4px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -16,12 +16,12 @@
   background-color: #001529;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
-  height: 44px;
+  height: 36px;
   color: #ffffff;
 }
 
 .header-bar .title {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   flex: 1;
 }
@@ -29,8 +29,8 @@
 /* 統一的按鈕基礎樣式 */
 .header-bar .icon-button,
 .chat-header-btn {
-  width: 32px;
-  height: 28px;
+  width: 28px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -141,38 +141,103 @@
   transform: rotate(180deg);
 }
 
+/* 控制區域樣式 */
+.chat-control-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 12px;  /* 減小上下內邊距 */
+  background: rgba(255, 255, 255, 0.8);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  height: 28px;  /* 減小高度 */
+}
+
+.left-controls,
+.right-controls {
+  display: flex;
+  align-items: center;
+}
+
+.control-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.control-item span {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+/* 自定義Switch樣式 */
+.control-item .ant-switch {
+  min-width: 24px;
+  height: 14px;
+}
+
+.control-item .ant-switch .ant-switch-handle {
+  width: 10px;
+  height: 10px;
+  top: 2px;
+}
+
+.control-item .ant-switch.ant-switch-checked .ant-switch-handle {
+  left: calc(100% - 12px);
+}
+
+/* 發送按鈕樣式 */
+.chat-send-button {
+  padding: 0;
+  height: 28px;
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  transition: all 0.3s;
+}
+
+.chat-send-button:hover {
+  transform: scale(1.1);
+}
+
+.chat-send-button:active {
+  transform: scale(0.95);
+}
+
 /* 輸入區域樣式 */
 .chat-input-container {
   background: rgba(255, 255, 255, 0.8);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
-  border-radius: 8px;
   padding: 8px;
   display: flex;
   flex-direction: column;
   position: relative;
-  min-height: 120px;
-  height: auto;
+  min-height: 120px;  /* 增加最小高度以容納4行文字 */
 }
 
 .chat-input-wrapper {
   position: relative;
   height: 100%;
-  min-height: 80px;
+  min-height: 120px;  /* 與容器保持一致 */
 }
 
 .chat-input {
   height: 100% !important;
   resize: none !important;
   border-radius: 6px;
-  padding-right: 40px;
-  padding-top: 8px;
+  padding: 8px;
   font-size: 14px;
   line-height: 1.5;
   border: 1px solid #d9d9d9;
-  min-height: 100px !important;
+  min-height: 120px !important;  /* 確保至少4行高度 */
   max-height: 50vh !important;
-  transition: height 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .chat-input:focus {
@@ -206,25 +271,183 @@
   background-color: rgba(0, 0, 0, 0.08);
 }
 
-.chat-send-button {
+/* 消息樣式 */
+.message {
+  padding: 12px;
+  border-radius: 18px;
+  margin-bottom: 8px;
+  max-width: 85%;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.message:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.user-message {
+  background-color: #e6f7ff;
+  margin-left: auto;
+  border-top-right-radius: 2px;
+  position: relative;
+  margin-right: 12px;  /* 為尖角留出空間 */
+}
+
+.user-message::before {
+  content: "";
   position: absolute;
-  right: 8px;
-  bottom: 8px;
-  padding: 0;
-  height: 32px;
-  width: 32px;
+  top: 0;
+  right: -12px;
+  width: 12px;
+  height: 20px;
+  background-color: #e6f7ff;
+  border-top-right-radius: 12px;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.1));
+}
+
+.ai-message {
+  background-color: #f6f6f6;
+  margin-right: auto;
+  border-top-left-radius: 2px;
+  position: relative;
+  margin-left: 12px;  /* 為尖角留出空間 */
+}
+
+.ai-message::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -12px;
+  width: 12px;
+  height: 20px;
+  background-color: #f6f6f6;
+  border-top-left-radius: 12px;
+  clip-path: polygon(100% 0, 100% 100%, 0 0);
+  filter: drop-shadow(-2px 2px 2px rgba(0, 0, 0, 0.1));
+}
+
+.message-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  transition: all 0.3s;
+  margin-bottom: 4px;
+  font-size: 12px;
+  padding: 0 4px;
 }
 
-.chat-send-button:hover {
-  transform: scale(1.1);
+.message-role {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.85);
 }
 
-.chat-send-button:active {
-  transform: scale(0.95);
+.message-time {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.message-content {
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 0 4px;
+}
+
+/* 調整滾動條樣式 */
+.message-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.message-list::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.message-list::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Markdown 樣式 */
+.markdown-body {
+  background-color: transparent !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+  font-size: 14px;
+  line-height: 1.6;
+  word-wrap: break-word;
+  padding: 0;
+}
+
+.markdown-body pre {
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.markdown-body code {
+  background-color: rgba(175, 184, 193, 0.2);
+  border-radius: 6px;
+  padding: 0.2em 0.4em;
+  font-size: 85%;
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+}
+
+.markdown-body pre code {
+  background-color: transparent;
+  padding: 0;
+  font-size: 100%;
+  white-space: pre;
+}
+
+.markdown-body blockquote {
+  padding: 0 1em;
+  color: #57606a;
+  border-left: 0.25em solid #d0d7de;
+  margin: 8px 0;
+}
+
+.markdown-body table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  margin: 8px 0;
+  width: 100%;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 6px 13px;
+  border: 1px solid #d0d7de;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #f6f8fa;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  box-sizing: border-box;
+  border-radius: 4px;
+  margin: 8px 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em;
+  margin: 8px 0;
+}
+
+.markdown-body hr {
+  height: 0.25em;
+  padding: 0;
+  margin: 24px 0;
+  background-color: #d0d7de;
+  border: 0;
 } 
